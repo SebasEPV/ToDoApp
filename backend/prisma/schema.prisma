@@ -1,0 +1,45 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        Int    @id @default(autoincrement())
+  name      String @unique
+  email     String @unique
+  password  String
+  startTime String //Hora a la que empieza el dia del usaurio
+  endTime   String //Hora a la que termina el dia del usaurio
+  status    Int? @default(1) //0 = eliminado, 1 = activo, 2 = inactivo
+
+  Task Task[] //Relacion de 1 Usuario : N Tareas
+}
+
+model Task {
+  id          Int      @id @default(autoincrement())
+  title       String
+  description String
+  dueDate     DateTime //Fecha y hora de entrega
+  status   Int? @default(1) //0 = eliminado, 1 = completrada, 2 = no completada
+
+  userId Int 
+  user   User @relation(fields: [userId], references: [id]) //Relacion de 1 Usuario : N Tareas 
+
+  Activity Activity[] //Relacion de 1 Tarea : N Actividades
+}      
+
+model Activity {
+  id          Int      @id @default(autoincrement())
+  title       String
+  description String
+  startTime   DateTime //Fecha y hora en la que se deberia de empezar la actividad
+  endTime     DateTime //Fecha y hora en la que se deberia de terminar la actividad
+  status      Int? @default(2)  //0 = eliminado, 1 = completada, 2 = no completada
+
+  taskId Int
+  task   Task @relation(fields: [taskId], references: [id]) //Relacion de 1 Tarea : N Actividades
+}
