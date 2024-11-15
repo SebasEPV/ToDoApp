@@ -1,0 +1,8 @@
+-- AlterTable
+ALTER TABLE `activity` MODIFY `startTime` VARCHAR(191) NOT NULL,
+    MODIFY `endTime` VARCHAR(191) NOT NULL;
+
+-- AlterTable
+ALTER TABLE `task` ADD COLUMN `priority` ENUM('TOP', 'DUMP') NOT NULL DEFAULT 'DUMP',
+    MODIFY `dueDate` VARCHAR(191) NOT NULL,
+    MODIFY `status` INTEGER NULL DEFAULT 2;
