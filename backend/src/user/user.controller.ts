@@ -12,13 +12,13 @@ export class UserController {
     }
 
     @Get(':id')
-    getUserById(@Param('id') id: number) {
-        return this.userService.getUserById(id);
+    getUserById(@Param('id') id: string) {
+        return this.userService.getUserById(+id);
     }
 
-    @Get(':username')
-    getUser(@Param('username') username: string) {
-        return this.userService.getUser(username);
+    @Get(':email')
+    getUser(@Param('email') email: string) {
+        return this.userService.getUser(email);
     }
 
     @Post()

@@ -11,16 +11,28 @@ export class UserService {
     return this.prisma.user.findMany();
   }
 
-  async getUserById(id: number): Promise<User | null> {
-    return this.prisma.user.findUnique({
+  async getUserById(id: number): Promise<User | string> {
+    const user = this.prisma.user.findUnique({
       where: { id },
     });
+
+    if (user) {
+      return user;
+    } else {
+      return 'Usuario no encontrado';
+    }
   }
 
-  async getUser(email: string): Promise<User | null> {
-    return this.prisma.user.findUnique({
+  async getUser(email: string): Promise<User | string> {
+    const user = this.prisma.user.findUnique({
       where: { email },
     });
+
+    if (user) {
+      return user;
+    } else {
+      return 'Usuario no encontrado';
+    }
   }
 
   async createUser(data: User): Promise<string> {
@@ -39,7 +51,7 @@ export class UserService {
         email: data.email,
         password: hashedPassword,
         startTime: data.startTime,
-        endTime: data.endTime
+        endTime: data.endTime,
       },
     });
     return `Se ha creado un usuario con el correo de ${data.email}.`;
