@@ -1,7 +1,8 @@
-import { Injectable, ConflictException } from '@nestjs/common';
+import { Injectable, ConflictException, NotFoundException } from '@nestjs/common';
 import { User } from '@prisma/client';
 import { PrismaService } from 'src/prisma/prisma.service';
 import * as bcrypt from 'bcrypt';
+import { NotFoundError } from 'rxjs';
 
 @Injectable()
 export class UserService {
@@ -16,11 +17,7 @@ export class UserService {
       where: { id },
     });
 
-    if (user) {
-      return user;
-    } else {
-      return 'Usuario no encontrado';
-    }
+    return user;
   }
 
   async getUser(email: string): Promise<User | string> {
@@ -28,11 +25,11 @@ export class UserService {
       where: { email },
     });
 
-    if (user) {
-      return user;
-    } else {
-      return 'Usuario no encontrado';
-    }
+    if (user !== null) {
+      throw new NotFoundException('Usuario no encontrado')
+    } 
+    return user;
+
   }
 
   async createUser(data: User): Promise<string> {

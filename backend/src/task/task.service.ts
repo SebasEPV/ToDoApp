@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateTaskDto } from './dto/create-task.dto';
 import { UpdateTaskDto } from './dto/update-task.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
@@ -11,13 +11,21 @@ export class TaskService {
   }
 
   findAll() {
-    return this.prisma.task.findMany();
+    const tasks = this.prisma.task.findMany() 
+    if (tasks !== null) {
+      return tasks;
+    }
+    return "No hay usuarios registrados"
   }
 
   findOne(id: number) {
-    return this.prisma.task.findUnique({
+    const task = this.prisma.task.findUnique({
       where : {id}
     });
+
+
+    return task;
+
   }
 
   update(id: number, updateTaskDto: UpdateTaskDto) {
