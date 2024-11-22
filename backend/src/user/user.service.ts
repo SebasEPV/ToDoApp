@@ -1,56 +1,51 @@
-import { Injectable, ConflictException, NotFoundException } from '@nestjs/common';
-import { User } from '@prisma/client';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import { CreateUserDto } from './dto/create-user.dto';
+import { UpdateUserDto } from './dto/update-user.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
-import * as bcrypt from 'bcrypt';
-import { NotFoundError } from 'rxjs';
+import { hash } from 'bcrypt';
 
 @Injectable()
 export class UserService {
   constructor(private prisma: PrismaService) {}
 
-  async getAllUsers(): Promise<User[]> {
-    return this.prisma.user.findMany();
+  async create(user: CreateUserDto) {
+    const { password, ...userNoPass } = user;
+    const hashedPassword = await hash(password, 10)
+    return await this.prisma.user.create({
+      data: {
+        ...userNoPass,
+        password: hashedPassword,
+      },
+    });
   }
 
-  async getUserById(id: number): Promise<User | string> {
-    const user = this.prisma.user.findUnique({
+  async findAll() {
+    const users = await this.prisma.user.findMany();
+    if (!users) {
+      throw new NotFoundException('Usuarios no encontrados');
+    }
+    return users;
+  }
+
+  async findOne(id: number) {
+    if (!id) {
+      throw new BadRequestException('El ID es obligatorio.');
+    }
+    const user = await this.prisma.user.findUnique({
       where: { id },
     });
 
-    return user;
-  }
-
-  async getUser(email: string): Promise<User | string> {
-    const user = this.prisma.user.findUnique({
-      where: { email },
-    });
-
-    if (user !== null) {
-      throw new NotFoundException('Usuario no encontrado')
-    } 
-    return user;
-
-  }
-
-  async createUser(data: User): Promise<string> {
-    // Verifica si el usuario ya existe
-    const existingUser = await this.getUser(data.email);
-    if (existingUser) {
-      throw new ConflictException(
-        `Ya existe un usuario con el correo ${data.email}.`,
-      );
+    if (!user) {
+      throw new NotFoundException('Usuario no encontrado');
     }
+    return user;
+  }
 
-    const hashedPassword = await bcrypt.hash(data.password, 10);
-    await this.prisma.user.create({
-      data: {
-        name: data.name,
-        email: data.email,
-        password: hashedPassword,
-        startTime: data.startTime,
-        endTime: data.endTime,
-      },
-    });
-    return `Se ha creado un usuario con el correo de ${data.email}.`;
+  async update(id: number, updateUserDto: UpdateUserDto) {
+    return `This action updates a #${id} user`;
+  }
+
+  async remove(id: number) {
+    return `This action removes a #${id} user`;
   }
 }
